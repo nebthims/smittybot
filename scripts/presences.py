@@ -1,0 +1,20 @@
+presences = [
+  "Pandas",
+  "Pokémans",
+  "Solo Queue Ranked DotA2",
+  "some weird indie roguelike RPG",
+  "a crazy-hard fiddly platformer",
+  "some weird resource management game",
+  "two idle games at the same time, man",
+  "another Rimworld run",
+  "another Hades run",
+  "at being an amateur programmer",
+  "like he's gonna really quit his job this time",
+  "the fool, sucka",
+  "Smittygame, again, because this time he's really got it",
+  "God",
+  "My Dinner With Andre, the arcade game",
+  "Eliezer Yudkowski's 'Escape the Box'",
+  "'A Beautiful Mind', the Home Game",
+  "Lee Carvallo's Putting Challenge"
+]
