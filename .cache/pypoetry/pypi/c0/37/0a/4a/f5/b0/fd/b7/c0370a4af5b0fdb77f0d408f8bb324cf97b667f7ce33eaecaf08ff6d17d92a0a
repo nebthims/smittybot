@@ -1,0 +1,1 @@
+9999999999{"name": "python-libuuid", "version": "0.9.0", "summary": "C Extension for faster UUID generation using libuuid.", "platform": "UNKNOWN", "requires_dist": null, "requires_python": null, "files": [], "_cache_version": "1.0.0"}

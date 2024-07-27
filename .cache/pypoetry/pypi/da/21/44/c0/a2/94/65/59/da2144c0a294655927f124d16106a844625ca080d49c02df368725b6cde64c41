@@ -1,0 +1,1 @@
+9999999999{"name": "azure-devops", "version": "6.0.0b4", "summary": "Python wrapper around the Azure DevOps 6.x APIs", "platform": "", "requires_dist": ["msrest (<0.7.0,>=0.6.0)"], "requires_python": "", "files": [], "_cache_version": "1.0.0"}

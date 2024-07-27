@@ -1,0 +1,1 @@
+9999999999{"name": "static-ffmpeg", "version": "2.5", "summary": "Cross platform ffmpeg to work on various systems.", "platform": null, "requires_dist": ["requests", "filelock", "pytest ; extra == 'test'"], "requires_python": ">=3.6.0", "files": [], "_cache_version": "1.0.0"}

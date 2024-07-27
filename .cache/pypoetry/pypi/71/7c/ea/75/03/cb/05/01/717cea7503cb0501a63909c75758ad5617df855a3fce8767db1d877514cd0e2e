@@ -1,0 +1,1 @@
+9999999999{"name": "grpcio-tools", "version": "1.48.1", "summary": "Protobuf code generator for gRPC", "platform": null, "requires_dist": ["protobuf (<4.0dev,>=3.12.0)", "grpcio (>=1.48.1)", "setuptools"], "requires_python": ">=3.6", "files": [], "_cache_version": "1.0.0"}

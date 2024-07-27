@@ -1,0 +1,1 @@
+9999999999{"name": "uuid0", "version": "0.2.7", "summary": "A library to make better timestamped UUIDs for databases and web apps", "platform": "", "requires_dist": ["pybase62"], "requires_python": "", "files": [], "_cache_version": "1.0.0"}
