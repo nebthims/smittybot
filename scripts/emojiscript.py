@@ -14,3 +14,4 @@ def to_emoji(input):
     #list = "0️⃣ "+str(list)
     pass
   return list
+

@@ -43,3 +43,4 @@ class Polls(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Polls(bot))
+

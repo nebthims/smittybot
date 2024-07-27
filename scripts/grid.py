@@ -40,5 +40,4 @@ def make_grid(hero_ids):
     
   # Create discord file object from PNG bytes
   canvas.save(output_file, format='PNG')
-
   return img_buffer.getvalue()

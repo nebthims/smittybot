@@ -112,3 +112,4 @@ class Slurs(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Slurs(bot))
+
