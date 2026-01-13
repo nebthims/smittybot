@@ -79,7 +79,7 @@ class Brokk(commands.Cog):
         print(" - BROKK: Ready!")
 
     @commands.command()
-    async def brokk(self, interaction: discord.Interaction):
+    async def brokk(self, ctx: commands.Context):
         current_year = str(datetime.now().year)
         prev_year = str(datetime.now().year - 1)
 
@@ -92,7 +92,7 @@ class Brokk(commands.Cog):
         try:
             assignments = generate_unique_assignments(brokk, current_year, prev_year)
         except ValueError as e:
-            await interaction.followup.send(f"❌ {e}", ephemeral=True)
+            await ctx.send(f"❌ {e}")
             return
 
         # Apply assignments (preserve any that were already present)
@@ -118,13 +118,12 @@ class Brokk(commands.Cog):
             with open("data/brokk.json", "w") as f:
                 json.dump(brokk, f, indent=4)
 
-        await interaction.followup.send(
-            f"✅ Brokk {current_year} assignments processed.",
-            ephemeral=True
+        await ctx.send(
+            f"✅ Brokk {current_year} assignments processed."
         )
 
     @commands.command(name="brokk_test")
-    async def brokk_test(self, interaction: discord.Interaction):
+    async def brokk_test(self, ctx: commands.Context):
         """Proof-of-concept: compute assignments and print to console."""
         current_year = str(datetime.now().year)
         prev_year = str(datetime.now().year - 1)
@@ -135,16 +134,15 @@ class Brokk(commands.Cog):
         try:
             assignments = generate_unique_assignments(brokk, current_year, prev_year)
         except ValueError as e:
-            await interaction.followup.send(f"❌ {e}", ephemeral=True)
+            await ctx.send(f"❌ {e}")
             return
 
         print("Brokk test assignments:")
         for giver, receiver in assignments.items():
             print(f"{giver} -> {receiver}")
 
-        await interaction.followup.send(
+        await ctx.send(
             "✅ Brokk test completed (assignments printed to console).",
-            ephemeral=True,
         )
 
 
