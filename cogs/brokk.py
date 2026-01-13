@@ -5,6 +5,74 @@ from discord import app_commands
 from discord.ext import commands
 from datetime import datetime
 
+
+def generate_unique_assignments(brokk, current_year, prev_year):
+    """Return a dict mapping giver -> receiver ensuring uniqueness per run.
+
+    Respects any existing assignment for `current_year` and forbids self-gifts
+    and repeat of last year's recipient. Raises ValueError if impossible.
+    """
+    names = list(brokk.keys())
+
+    # Respect fixed assignments already present
+    fixed = {
+        name: data[current_year]
+        for name, data in brokk.items()
+        if current_year in data
+    }
+
+    # Detect conflicts in preexisting assignments
+    if len(set(fixed.values())) != len(fixed.values()):
+        raise ValueError("Conflicting fixed assignments for current year")
+
+    remaining_targets = set(names) - set(fixed.values())
+    unassigned = []
+    invalids = {}
+
+    for name, data in brokk.items():
+        if name in fixed:
+            continue
+        inv = {name}
+        if prev_year in data:
+            inv.add(data[prev_year])
+        invalids[name] = inv
+        unassigned.append(name)
+
+    def backtrack(order, assigned, targets_left):
+        if not order:
+            return assigned.copy()
+
+        # Heuristic: pick the giver with fewest valid targets
+        best = None
+        best_opts = None
+        for giver in order:
+            opts = [t for t in targets_left if t not in invalids[giver]]
+            if not opts:
+                return None
+            if best is None or len(opts) < len(best_opts):
+                best = giver
+                best_opts = opts
+
+        giver = best
+        for target in random.sample(best_opts, len(best_opts)):
+            assigned[giver] = target
+            new_targets = targets_left - {target}
+            new_order = [g for g in order if g != giver]
+            res = backtrack(new_order, assigned, new_targets)
+            if res is not None:
+                return res
+            del assigned[giver]
+
+        return None
+
+    result = backtrack(unassigned, {}, remaining_targets)
+    if result is None:
+        raise ValueError("No valid unique assignment found")
+
+    merged = fixed.copy()
+    merged.update(result)
+    return merged
+
 class Brokk(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -19,30 +87,19 @@ class Brokk(commands.Cog):
         with open("data/brokk.json", "r") as f:
             brokk = json.load(f)
 
-        names = list(brokk.keys())
         assignments_made = False
 
+        try:
+            assignments = generate_unique_assignments(brokk, current_year, prev_year)
+        except ValueError as e:
+            await interaction.followup.send(f"❌ {e}", ephemeral=True)
+            return
+
+        # Apply assignments (preserve any that were already present)
         for name, data in brokk.items():
             user_id = int(data["User ID"])
-
-            # Already assigned this year → just message
-            if current_year in data:
-                assigned_name = data[current_year]
-            else:
-                invalid = {name}
-
-                if prev_year in data:
-                    invalid.add(data[prev_year])
-
-                choices = [n for n in names if n not in invalid]
-
-                if not choices:
-                    await interaction.followup.send(
-                        f"❌ No valid assignment possible for {name}.",
-                    )
-                    return
-
-                assigned_name = random.choice(choices)
+            assigned_name = assignments[name]
+            if current_year not in data:
                 data[current_year] = assigned_name
                 assignments_made = True
 
@@ -64,6 +121,30 @@ class Brokk(commands.Cog):
         await interaction.followup.send(
             f"✅ Brokk {current_year} assignments processed.",
             ephemeral=True
+        )
+
+    @commands.command(name="brokk_test")
+    async def brokk_test(self, interaction: discord.Interaction):
+        """Proof-of-concept: compute assignments and print to console."""
+        current_year = str(datetime.now().year)
+        prev_year = str(datetime.now().year - 1)
+
+        with open("data/brokk.json", "r") as f:
+            brokk = json.load(f)
+
+        try:
+            assignments = generate_unique_assignments(brokk, current_year, prev_year)
+        except ValueError as e:
+            await interaction.followup.send(f"❌ {e}", ephemeral=True)
+            return
+
+        print("Brokk test assignments:")
+        for giver, receiver in assignments.items():
+            print(f"{giver} -> {receiver}")
+
+        await interaction.followup.send(
+            "✅ Brokk test completed (assignments printed to console).",
+            ephemeral=True,
         )
 
 
