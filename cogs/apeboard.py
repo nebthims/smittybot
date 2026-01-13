@@ -49,7 +49,8 @@ class Apeboard(commands.Cog):
             "lewie": 5763719,
             "dlux": 3447003,
             "gilly91": 16020735,
-            "spybro": 8846079,}
+            "spybro": 8846079,
+            "SmittyBot": 16753364,}
           colour = colourdict[author]
     
           # Setup Embed:

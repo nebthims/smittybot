@@ -1,0 +1,62 @@
+{
+    "Gilly": {
+        "User ID": 110664581071777792,
+        "2024": "Lewie",
+        "2023": "Swagadelic",
+        "2022": "dlux",
+        "2021": "Lewie",
+        "2020": "Smitty",
+        "2018": "Spybro",
+        "2025": "Smitty"
+    },
+    "Smitty": {
+        "User ID": 114724580962074631,
+        "2024": "Swagadelic",
+        "2023": "dlux",
+        "2022": "Lewie",
+        "2021": "Gilly",
+        "2020": "Spybro",
+        "2018": "Gilly",
+        "2025": "dlux"
+    },
+    "Swagadelic": {
+        "User ID": 114724842074275847,
+        "2024": "Spybro",
+        "2023": "Lewie",
+        "2022": "Gilly",
+        "2021": "dlux",
+        "2020": "Lewie",
+        "2018": "dlux",
+        "2025": "Smitty"
+    },
+    "dlux": {
+        "User ID": 115036164477550596,
+        "2024": "Gilly",
+        "2023": "Spybro",
+        "2022": "Smitty",
+        "2021": "Lewie",
+        "2020": "Swagadelic",
+        "2018": "Smitty",
+        "2025": "Lewie"
+    },
+    "SpyBro": {
+        "User ID": 114861493962539010,
+        "2024": "Smitty",
+        "2023": "Gilly",
+        "2022": "Swagadelic",
+        "2021": "Smitty",
+        "2020": "Gilly",
+        "2018": "Lewie",
+        "2025": "Swagadelic"
+    },
+    "Lewie": {
+        "User ID": 114889913605816326,
+        "2024": "dlux",
+        "2023": "Smitty",
+        "2022": "Spybro",
+        "2021": "Swagadelic",
+        "2020": "dlux",
+        "2018": "Swagadelic",
+        "2025": "Gilly"
+    }
+}

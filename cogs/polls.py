@@ -25,17 +25,22 @@ class Polls(commands.Cog):
 
   @commands.command()
   async def poll(self, ctx):
-    temp_options = options
-    split_text = ctx.message.content.split(' ')
-    newList = []
+    content = ctx.message.content
+    if ',' not in content:
+      await ctx.send("Separate the items with commas.")
+      return
+    temp_options = options.copy()
+    options_text = content[len('/poll '):]
+    split_text = [option.strip() for option in options_text.split(',') if option.strip()]
+    if not split_text:
+      await ctx.send("You didn't list anything!")
+      return
     reacts = []
     embed = discord.Embed(title = f"BroPoll for {dt.today()}")
-    for _ in split_text[1:]:
-        newList.append(_.title())
-    for _ in range(len(newList)):
-      random.shuffle(temp_options)
-      reacts.append(temp_options.pop())
-      embed.add_field(name = newList[_], value = reacts[_], inline = False)
+    for _ in split_text:
+      emoji = temp_options.pop(random.randint(0,len(temp_options)-1))
+      reacts.append(emoji)
+      embed.add_field(name = _.title(), value = emoji, inline = False)
     msg = await ctx.send(embed = embed)
     for _ in reacts:
       await msg.add_reaction(_)

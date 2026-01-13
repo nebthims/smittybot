@@ -199,9 +199,9 @@ class Customs(commands.Cog):
       await ctx.send(":sweat_drops: :rocket: ||<:Desmittge:1159800255831883836>||")
         
     
-    @commands.command() #the #shea command - how long since a bro was around?
-    async def sheatimer(self, ctx):
-      message = discord.
+    #@commands.command() #the #shea command - how long since a bro was around?
+    #async def sheatimer(self, ctx):
+    #  message = discord.
 
 
     @commands.command()

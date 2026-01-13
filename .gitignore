@@ -3,6 +3,8 @@ node_modules/
 
 # Ignore FFMPEG
 ffmpeg-6.0-i686-static/
+ffmpeg-release-i686-static.tar.xz
 
 # Ignore the replit export
 SmittyBot-20.zip
+
