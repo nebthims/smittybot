@@ -9,12 +9,20 @@ import io
 import aiohttp
 from scripts.grid import make_grid
 
+# Cached hero list populated at startup
+HEROES = []
+
 brodota = ["34194037", "4862317", "34474001", "30141888", "20877084"]
+
+
 async def get_heroes():
-    async with aiohttp.ClientSession() as session:
-        async with session.get("https://api.opendota.com/api/heroes") as response:
-            if response.status == 200:
-                HEROES = await response.json()
+  """Fetch and cache hero metadata."""
+  global HEROES
+  async with aiohttp.ClientSession() as session:
+    async with session.get("https://api.opendota.com/api/heroes") as response:
+      if response.status != 200:
+        raise RuntimeError(f"Failed to fetch heroes: {response.status}")
+      HEROES = await response.json()
 
 
 class Strawpolls(commands.Cog):
@@ -24,23 +32,44 @@ class Strawpolls(commands.Cog):
 
   @commands.command()
   async def strawpoll(self, ctx):
+    if not HEROES:
+      try:
+        await get_heroes()
+      except Exception as e:
+        await ctx.send(f"Couldn't load hero list: {e}")
+        return
+
     match_dates = {}  # create an empty dictionary to store match IDs and their start times
     for _ in brodota: # find all recent bro games
+      try:
         requests.post(f"https://api.opendota.com/api/players/{_}/refresh")
         response = requests.get(f"https://api.opendota.com/api/players/{_}/recentMatches")
-        for x in response.json():
-            try:
-                match_id = x["match_id"]
-                match_start_time = x["start_time"]
-                match_dates[match_id] = match_start_time
-            except:
-                print(f"Skipping match without match_id: {x}")
-                continue
+        response.raise_for_status()
+      except Exception as e:
+        print(f"Failed to refresh recent matches for player {_}: {e}")
+        continue
+      for x in response.json() or []:
+        match_id = x.get("match_id")
+        match_start_time = x.get("start_time")
+        if match_id and match_start_time:
+          match_dates[match_id] = match_start_time
+
+    if not match_dates:
+      await ctx.send("Couldn't find recent bro games.")
+      return
+
     latest_match_id = max(match_dates, key=match_dates.get)
-    response = requests.get(f"https://api.opendota.com/api/matches/{latest_match_id}") # find info on most recent bro game
-    radiant_win = response.json()["radiant_win"]
-    radiant_score = response.json()["radiant_score"]
-    dire_score = response.json()["dire_score"]
+    try:
+      response = requests.get(f"https://api.opendota.com/api/matches/{latest_match_id}") # find info on most recent bro game
+      response.raise_for_status()
+      match_json = response.json()
+    except Exception as e:
+      await ctx.send(f"Couldn't fetch match {latest_match_id}: {e}")
+      return
+
+    radiant_win = match_json.get("radiant_win")
+    radiant_score = match_json.get("radiant_score")
+    dire_score = match_json.get("dire_score")
     if radiant_win == True:
       winner = "Radiant Victory"
       embed_colour = 65281
@@ -50,7 +79,7 @@ class Strawpolls(commands.Cog):
     players = {}
     all_ids = {}
     count = 0
-    for x in response.json()["players"]: # get player and hero information
+    for x in match_json.get("players", []): # get player and hero information
         count += 1
         if "personaname" in x: # figure out which team bros were on
           pname = x["personaname"]
@@ -69,12 +98,14 @@ class Strawpolls(commands.Cog):
                 winner = "Dire Victory, bros won!"
         else:
           pname = "Private User"+str(count)
-        heroid = x["hero_id"]
-        for y in HEROES.json():
-          if y["id"] == heroid:
-            heroname = y["localized_name"]
-        players[pname] = heroname, x["player_slot"]
-        all_ids[pname] = heroid, x["player_slot"]
+        heroid = x.get("hero_id")
+        heroname = next((y["localized_name"] for y in HEROES if y.get("id") == heroid), "Unknown Hero")
+        players[pname] = heroname, x.get("player_slot", 0)
+        all_ids[pname] = heroid, x.get("player_slot", 0)
+
+    if "team" not in locals():
+        await ctx.send("No bros found in the latest match.")
+        return
 
     if team == 1: # delete values that aren't bros
       broteam = {key: value[0] for key, value in players.items() if value[1] <= 100}
@@ -82,6 +113,11 @@ class Strawpolls(commands.Cog):
     else:
       broteam = {key: value[0] for key, value in players.items() if value[1] >= 100}
       hero_nums = {key: value[0] for key, value in all_ids.items() if value[1] >= 100}
+
+    if not broteam or not hero_nums:
+        await ctx.send("Couldn't determine bros or heroes for the latest match.")
+        return
+
     hero_ids = hero_nums.values()
     
     temp_options = OPTIONS[:] # set up embed
