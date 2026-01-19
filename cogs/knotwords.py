@@ -1,42 +1,52 @@
 import discord
 from discord.ext import commands
 import json
+from pathlib import Path
 
-class Knotwords(commands.Cog):
+class DailyGames(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.classic_scores = {}
         self.mini_scores = {}
-        print(" - KNOTWORDS: Ready!")
+        print(" - DAILY GAMES: Ready!")
 
-    @commands.Cog.listener()  
-    async def on_message(self, message):
-        if message.channel.id == 934690017924763689:
-          # Check if the message is a Knotwords Daily Classic or Mini message
-          if "Knotwords Daily Classic" in message.content:
-            game_type = "Classic"
-          elif "Knotwords Daily Mini" in message.content:
-            game_type = "Mini"
-          else:
+    @commands.command(name="dumpdailygames")
+    async def dump_daily_games(self, ctx):
+        """Archive CluesBySam and Minute Cryptic posts from the daily channel."""
+        channel_id = 934690017924763689
+        channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(channel_id)
+        if channel is None:
+            await ctx.send("Daily games channel not found.")
             return
-          # Extract the user and score from the message
-          user = message.author.name
-          lines = message.content.split("\n")
-          score = lines[1]
 
-          # Load the score data from the JSON file
-          with open("data/knots.json", 'r') as f:
-            data = json.load(f)
-  
-          # Add the user and score to the corresponding dictionary
-          data[game_type][user] = score
-  
-          # Print the updated scores for debugging
-          print(data)
-  
-          with open("data/knots.json", "w") as f:
-            json.dump(data, f)
-  
+        clues_messages = []
+        minute_messages = []
+        async for message in channel.history(limit=None, oldest_first=True):
+            content = message.content or ""
+            if "#CluesBySam" in content:
+                clues_messages.append({
+                    "Timestamp": message.created_at.isoformat(),
+                    "Bro": message.author.name,
+                    "Message": content,
+                })
+            if "Minute Cryptic" in content:
+                minute_messages.append({
+                    "Timestamp": message.created_at.isoformat(),
+                    "Bro": message.author.name,
+                    "Message": content,
+                })
+
+        data_dir = Path("data")
+        data_dir.mkdir(parents=True, exist_ok=True)
+        (data_dir / "clues_by_sam.json").write_text(json.dumps(clues_messages, indent=2))
+        (data_dir / "minute_cryptic.json").write_text(json.dumps(minute_messages, indent=2))
+
+        await ctx.send(
+            f"Archived {len(clues_messages)} CluesBySam and {len(minute_messages)} Minute Cryptic messages."
+        )
+
+
+
 async def setup(bot):
-  await bot.add_cog(Knotwords(bot))
+    await bot.add_cog(DailyGames(bot))
 
