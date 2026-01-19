@@ -22,13 +22,23 @@ bot = commands.Bot(command_prefix='/', intents=intents, activity=activity)
 
 async def load_cogs():
   for f in os.listdir("./cogs"):
-  	if f.endswith(".py"):
-  		await bot.load_extension("cogs." + f[:-3])
+    if f.endswith(".py"):
+      ext = "cogs." + f[:-3]
+      try:
+        await bot.load_extension(ext)
+        print(f"Loaded {ext}")
+      except Exception as e:
+        print(f"Failed to load {ext}: {e}")
 
 async def unload_cogs():
   for f in os.listdir("./cogs"):
-  	if f.endswith(".py"):
-  		await bot.unload_extension("cogs." + f[:-3])
+    if f.endswith(".py"):
+      ext = "cogs." + f[:-3]
+      try:
+        await bot.unload_extension(ext)
+        print(f"Unloaded {ext}")
+      except Exception as e:
+        print(f"Failed to unload {ext}: {e}")
 
 @bot.event # When the bot signs in:
 async def on_ready():
